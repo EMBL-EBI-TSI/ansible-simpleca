@@ -1,0 +1,11 @@
+---
+- name: Copy SimpleCA certificate package
+  copy: src=tmp/fetched/simpleca/ dest=/var/lib/globus/simple_ca owner=simpleca group=simpleca mode=0644
+
+- name: List of fetched SimpleCA certificate packages
+  find: paths=/var/lib/globus/simple_ca/ patterns='globus-simple-ca-*.noarch.rpm'
+  register: last
+
+- name: Install SimpleCA certificate packages
+  yum: name={{item.path}} state=present
+  with_items: '{{last.files}}'

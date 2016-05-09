@@ -1,0 +1,14 @@
+---
+- name: Install repo package
+  yum: name={{simpleca_repo_rpm}} state=present
+
+- name: Install packages
+  yum: name={{item}} state=present
+  with_items:
+    - globus-gsi
+
+- include: server.yml
+  when: simpleca_mode == 'server'
+
+- include: client.yml
+  when: simpleca_mode == 'client'

@@ -1,0 +1,30 @@
+---
+- name: Install packages
+  yum: name={{item}} state=present
+  with_items:
+    - rpm-build
+
+- name: List of SimpleCA certificate packages
+  find: paths=/etc/grid-security/certificates patterns='globus-simple-ca-*.spec'
+  register: last
+
+- set_fact: simpleca_certs={{simpleca_certs | default([]) | union([item.path | basename | replace('globus-simple-ca-', '') | replace(".spec", "")])}}
+  with_items: '{{last.files}}'
+
+- name: Create SimpleCA certificate package
+  command: grid-ca-package -r -ca {{item}}
+  args:
+    creates: /var/lib/globus/simple_ca/globus-simple-ca-{{item}}-*.noarch.rpm
+  become: yes
+  become_user: simpleca
+  with_items: '{{simpleca_certs}}'
+  # failed_when: "'Executing(%clean)' not in last.stdout and 'skipped' not in last.stdout"
+  register: last
+
+- name: List of fetched SimpleCA certificate packages
+  find: paths=/var/lib/globus/simple_ca/ patterns='globus-simple-ca-*.noarch.rpm'
+  register: last
+
+- name: Fetch SimpleCA certificate package
+  fetch: src={{item.path}} dest=tmp/fetched/simpleca/ flat=yes
+  with_items: '{{last.files}}'
