@@ -1,8 +1,6 @@
 ---
 - name: Install packages
-  yum: name={{item}} state=present
-  with_items:
-    - rpm-build
+  yum: name=rpm-build state=present
 
 - name: List of SimpleCA certificate packages
   find: paths=/etc/grid-security/certificates patterns='globus-simple-ca-*.spec'

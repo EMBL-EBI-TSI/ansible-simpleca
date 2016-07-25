@@ -3,9 +3,7 @@
   yum: name={{simpleca_repo_rpm}} state=present
 
 - name: Install packages
-  yum: name={{item}} state=present
-  with_items:
-    - globus-gsi
+  yum: name=globus-gsi state=present
 
 - include: server.yml
   when: simpleca_mode == 'server'
